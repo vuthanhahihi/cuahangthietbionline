@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity"
+    android:orientation="horizontal"
 
-    android:orientation="horizontal" >
+    tools:context=".activity.MainActivity">
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawerlayout"
         android:layout_width="match_parent"
@@ -17,13 +18,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbarmanhinhchinh"
-                app:title="Trang chính"
-                android:background="#EBEDF3"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize">
-            </androidx.appcompat.widget.Toolbar>
+                android:layout_height="?attr/actionBarSize"
+                android:background="#EBEDF3"
+                app:title="Trang chính"></androidx.appcompat.widget.Toolbar>
 
             <ViewFlipper
                 android:id="@+id/viewflipper"
@@ -35,15 +36,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#5992d2"
+                android:background="#D8CDD1"
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="109dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:text="Sản phẩm"
-                    android:textColor="#f20"
+                    android:gravity="center"
+                    android:text="Sản phẩm mới"
+                    android:textColor="@color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -56,11 +58,13 @@
 
             </LinearLayout>
         </LinearLayout>
+
         <com.google.android.material.navigation.NavigationView
-           android:id="@+id/navigationview"
-            android:layout_gravity="start"
+            android:id="@+id/navigationview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_gravity="start">
+
             <ListView
                 android:id="@+id/listviewmanhinhchinh"
                 android:layout_width="match_parent"

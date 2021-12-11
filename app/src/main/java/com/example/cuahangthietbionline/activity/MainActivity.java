@@ -1,40 +1,40 @@
 package com.example.cuahangthietbionline.activity;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.cuahangthietbionline.R;
 import com.example.cuahangthietbionline.adapter.LoaispAdapter;
+import com.example.cuahangthietbionline.adapter.SanphamAdapter;
 import com.example.cuahangthietbionline.model.Loaisp;
+import com.example.cuahangthietbionline.model.Sanpham;
 import com.example.cuahangthietbionline.ultil.CheckConnection;
 import com.example.cuahangthietbionline.ultil.Server;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     ListView listViewmanhinhchinh;
     DrawerLayout drawerLayout;
     ArrayList<Loaisp> mangloaisp;
+    ArrayList<Sanpham> mangsanpham;
+    SanphamAdapter sanphamAdapter;
     LoaispAdapter loaispAdapter;
     int id = 0;
     String tenloaisp = "";
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
             ActionBar();
             ActionViewFlipper();
             GetDuLieuLoaisp();
+            GetDuLieuSPMoiNhat();
+            CatchOnItemListView();
         } else {
             CheckConnection.showToast_Short(getApplicationContext(), "Bạn hãy kiểm tra lại kết nối");
             finish();
@@ -67,11 +71,99 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void CatchOnItemListView() {
+        listViewmanhinhchinh.setOnItemClickListener((parent, view, position, id) -> {
+            switch (position) {
+                case 0:
+                    if (CheckConnection.haveNetworkConnection(getApplicationContext())) {
+                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    } else {
+                        CheckConnection.showToast_Short(getApplicationContext(), "Kiểm tra lại kết nối");
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    break;
+                case 1:
+                    if (CheckConnection.haveNetworkConnection(getApplicationContext())) {
+                        Intent intent = new Intent(MainActivity.this, DienThoaiActivity.class);
+                        intent.putExtra("idloaisanpham", mangloaisp.get(position).getId());
+                        startActivity(intent);
+                    } else {
+                        CheckConnection.showToast_Short(getApplicationContext(), "Kiểm tra lại kết nối");
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    break;
+                case 2:
+                    if (CheckConnection.haveNetworkConnection(getApplicationContext())) {
+                        Intent intent = new Intent(MainActivity.this, LapTopActivity.class);
+                        intent.putExtra("idloaisanpham", mangloaisp.get(position).getId());
+                        startActivity(intent);
+                    } else {
+                        CheckConnection.showToast_Short(getApplicationContext(), "Kiểm tra lại kết nối");
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    break;
+                case 3:
+                    if (CheckConnection.haveNetworkConnection(getApplicationContext())) {
+                        Intent intent = new Intent(MainActivity.this, LienHeActivity.class);
+                        startActivity(intent);
+                    } else {
+                        CheckConnection.showToast_Short(getApplicationContext(), "Kiểm tra lại kết nối");
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    break;
+                case 4:
+                    if (CheckConnection.haveNetworkConnection(getApplicationContext())) {
+                        Intent intent = new Intent(MainActivity.this, ThongTinActivity.class);
+                        startActivity(intent);
+                    } else {
+                        CheckConnection.showToast_Short(getApplicationContext(), "Kiểm tra lại kết nối");
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    break;
+            }
+        });
+    }
+
+    private void GetDuLieuSPMoiNhat() {
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Server.Duongdansanphammoinhat, response -> {
+            if (response != null) {
+                int ID = 0;
+                String Tensanpham = "";
+                Integer Giasanpham = 0;
+                String Hinhanhsanpham = "";
+                String Motasanpham = "";
+                int IDsanpham = 0;
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        JSONObject jsonObject = response.getJSONObject(i);
+                        ID = jsonObject.getInt("id");
+                        Tensanpham = jsonObject.getString("tensp");
+                        Giasanpham = jsonObject.getInt("giasp");
+                        Hinhanhsanpham = jsonObject.getString("hinhanhsp");
+                        Motasanpham = jsonObject.getString("motasp");
+                        IDsanpham = jsonObject.getInt("idsanpham");
+
+                        mangsanpham.add(new Sanpham(ID, Tensanpham, Giasanpham, Hinhanhsanpham, Motasanpham, IDsanpham));
+                        sanphamAdapter.notifyDataSetChanged();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, error -> {
+
+        });
+        requestQueue.add(jsonArrayRequest);
+    }
+
     private void GetDuLieuLoaisp() {
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Server.Duongdanloaisp, response -> {
             if (response != null) {
-                for (int i = 0 ; i < response.length(); i++) {
+                for (int i = 0; i < response.length(); i++) {
                     try {
                         JSONObject jsonObject = response.getJSONObject(i);
                         id = jsonObject.getInt("id");
@@ -137,5 +229,11 @@ public class MainActivity extends AppCompatActivity {
         mangloaisp.add(0, new Loaisp(0, "Trang chính", "https://cdn.pixabay.com/photo/2015/12/28/02/58/home-1110868_960_720.png"));
         loaispAdapter = new LoaispAdapter(mangloaisp, getApplicationContext());
         listViewmanhinhchinh.setAdapter(loaispAdapter);
+
+        mangsanpham = new ArrayList<>();
+        sanphamAdapter = new SanphamAdapter(getApplicationContext(), mangsanpham);
+        recyclerviewmanhinhchinh.setHasFixedSize(true);
+        recyclerviewmanhinhchinh.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
+        recyclerviewmanhinhchinh.setAdapter(sanphamAdapter);
     }
 }
